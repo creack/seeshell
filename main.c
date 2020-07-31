@@ -53,7 +53,8 @@ int     main() {
     if (n == 0) {
       break;
     }
-    buf[n] = '\0';
+    // Always strip the trialing char (expected to be \n).
+    buf[n - 1] = '\0';
     /* xputs(buf); */
 
     /* Exec input. */
@@ -65,9 +66,9 @@ int     main() {
     }
 
     if (pid == 0) {
-      char* const lsArgs[] = {"/usr/bin/ls", NULL};
-      char* const lsEnv[] = {NULL};
-      if (execve(lsArgs[0], lsArgs, lsEnv) == -1) {
+      char* const cmdArgs[] = {buf, NULL};
+      char* const cmdEnv[] = {NULL};
+      if (execve(cmdArgs[0], cmdArgs, cmdEnv) == -1) {
         perror("execve:");
         exit(1);
       }
