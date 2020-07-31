@@ -21,29 +21,51 @@ getppid():5    getppid():?
  */
 
 int main() {
-  int pid;
+  char* buf;
+  int n;
 
-  if ((pid = fork()) == -1) {
-    perror("fork:");
+  // Read from STDIN.
+  if ((buf = malloc(sizeof(char) * 1024)) == NULL) {
+    perror("malloc:");
     exit(1);
   }
 
-  if (pid == 0) {
-    char* const lsArgs[] = {"/usr/bin/ls", NULL};
-    char* const lsEnv[] = {NULL};
-    if (execve(lsArgs[0], lsArgs, lsEnv) == -1) {
-      perror("execve:");
+  while ((n = read(STDIN_FILENO, buf, 1024)) > 0) {
+    if ((write(STDOUT_FILENO, buf, n)) < 0) {
+      perror("write:");
       exit(1);
     }
   }
-
-  if (wait(&pid) == -1) {
-    perror("wait:");
+  if (n < 0) {
+    perror("read:");
     exit(1);
   }
-
-  printf("Success!\n");
 }
+
+/* int main() { */
+/*   int pid; */
+
+/*   if ((pid = fork()) == -1) { */
+/*     perror("fork:"); */
+/*     exit(1); */
+/*   } */
+
+/*   if (pid == 0) { */
+/*     char* const lsArgs[] = {"/usr/bin/ls", NULL}; */
+/*     char* const lsEnv[] = {NULL}; */
+/*     if (execve(lsArgs[0], lsArgs, lsEnv) == -1) { */
+/*       perror("execve:"); */
+/*       exit(1); */
+/*     } */
+/*   } */
+
+/*   if (wait(&pid) == -1) { */
+/*     perror("wait:"); */
+/*     exit(1); */
+/*   } */
+
+/*   printf("Success!\n"); */
+/* } */
 
 /* int main2(int argc, char *argv[]) { */
 /*   printf("Hello world! %s (%d)\n", argv[0], argc); */
