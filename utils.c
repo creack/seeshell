@@ -13,11 +13,12 @@ void  xwrite(int fd, void* buf, int len) {
 }
 
 int     my_strlen(char *str) {
-  /* Interate through str bytes until we
+  /* Iterate through str bytes until we
      reach a null delimeter (\0). */
   int   charCount;
 
   charCount = 0;
+  /* Iterate through string until we've reached the end. */
   while (str != NULL && *(str + charCount++) != '\0');
 
   return charCount;
@@ -32,12 +33,29 @@ void  xputs(void* str) {
  * Initializes the memory with 0.
  * Exits the process in case of failure.
  */
-void    *xmalloc(int size) {
+void*   xmalloc(int size) {
   void* buf;
 
-  if ((buf = malloc(sizeof(char) * (size + 1))) == NULL) {
+  if ((buf = malloc(size)) == NULL) {
     perror("malloc:");
     exit(1);
   }
-  return memset(buf, 0, size + 1);
+  return memset(buf, 0, size);
+}
+
+/*
+ * count_char counts the number of instances of c in str.
+ */
+int   count_char(char* str, char c) {
+  int num_char;
+
+  /* Iterate through string until we've reached the end. */
+  num_char = 0;
+  while (str != NULL && *str != '\0') {
+    if (*str == c) {
+      num_char++;
+    }
+    str++;
+  }
+  return num_char;
 }
