@@ -17,3 +17,20 @@
 getppid():5    getppid():?
 ```
 
+## Steps
+
+1. Exec/fork (7-29)
+2. Read line (7-29)
+3. Split string (8-4)
+4. Use split string for parsing command line and isolate PATH
+5. Break out fork and introduce builtin (e.g. `exit`)
+
+
+## Other topics
+
+1. More advanced parsing
+2. Pipelines (using `|`)
+3. Job control
+4. Terminal management
+5. Line processing
+
