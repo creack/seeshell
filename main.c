@@ -8,19 +8,19 @@
 /*
  * fork_exec forks the process and executes the given command in the child.
  */
-void  fork_exec(char* const buf) {
-  /* Exec input. */
-  int pid;
-  char* cmdArgs[] = {NULL, NULL};
-  char* const cmdEnv[] = {NULL};
+void      fork_exec(char* const buf) {
+  int     pid;
+  char**  cmdArgs;
+  char*   cmdEnv[] = {NULL};
 
   if ((pid = fork()) == -1) {
     perror("fork:");
     exit(1);
   }
 
+  /* Split line to get command and its arguments. */
+  cmdArgs = my_split(buf);
   if (pid == 0) {
-    cmdArgs[0] = buf;
     if (execve(cmdArgs[0], cmdArgs, cmdEnv) == -1) {
       perror("execve:");
       exit(1);
@@ -59,15 +59,8 @@ void    read_loop(int fd) {
   }
 }
 
-int       main() {
-  char**  list;
-
-  printf("Hello!\n");
-  /* read_loop(STDIN_FILENO); */
-  list = my_split("Hello World, how is it going?");
-  while (list && *list) {
-    printf("Element from the list: '%s'.\n", *list++);
-  }
+int main() {
+  read_loop(STDIN_FILENO);
 
   return (0);
 }
