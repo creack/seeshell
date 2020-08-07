@@ -5,7 +5,7 @@
 /*
  * my_split splits the given string on each space and returns a list of strings.
  */
-char**    my_split(const char* in) {
+char**    my_split(const char* in, char tok) {
   char**  ret;
   char*   str;
   int     len;
@@ -21,11 +21,11 @@ char**    my_split(const char* in) {
   j = 0; /* Here, we use j to keep track of how many element we find in the string. */
   i = 0;
   while (str != NULL && str[i] != '\0') {
-    if (str[i] == ' ') {
+    if (str[i] == tok) {
       str[i] = '\0';
       j++;
       /* Continue until the last space in this block. */
-      while (str[i] == ' ') str[i++] = '\0';
+      while (str[i] == tok) str[i++] = '\0';
     }
     i++;
   }
@@ -38,8 +38,9 @@ char**    my_split(const char* in) {
   while (i < len) {
     while (i < len && str[i] == '\0') i++;
 
+    /* We are at the end of the string and '\0', move to the first element of the next string. */
     ret[j++] = str + i;
-    while (str[i] != '\0' && i < len) i++;
+    while (i < len && str[i] != '\0') i++;
   }
   ret[j - 1] = NULL;
   return ret;

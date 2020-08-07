@@ -19,7 +19,7 @@ void      fork_exec(char* const buf) {
   }
 
   /* Split line to get command and its arguments. */
-  cmdArgs = my_split(buf);
+  cmdArgs = my_split(buf, ' ');
   if (pid == 0) {
     if (execve(cmdArgs[0], cmdArgs, cmdEnv) == -1) {
       perror("execve:");
@@ -59,8 +59,31 @@ void    read_loop(int fd) {
   }
 }
 
-int main() {
-  read_loop(STDIN_FILENO);
+int       main(int argc, const char* argv[], const char* env[]) {
+  int     i;
+  char**  path_dirs;
+  char*   dir;
+
+  if (argc == 0 || argv == NULL) return 0;
+  i = 0;
+  while (env != NULL && env[i] != NULL) {
+    if (strncmp(env[i], "PATH=", 5) == 0) {
+      path_dirs = my_split(env[i]+5, ':');
+      i = 0; /* We are going to break here, so we can reuse i safely. */
+      while (path_dirs != NULL && path_dirs[i]) {
+        /* Length of directory path + length of "/ls" + '\0'. */
+        dir = xmalloc(sizeof(char) * (my_strlen(path_dirs[i]) + 3 + 1));
+        strcat(dir, path_dirs[i]);
+        strcat(dir, "/ls");
+        printf("%s\n", dir);
+        /* fork_exec(); */
+        i++;
+      }
+      break;
+    }
+    i++;
+  }
+  /* read_loop(STDIN_FILENO); */
 
   return (0);
 }
