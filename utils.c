@@ -42,20 +42,3 @@ void*   xmalloc(int size) {
   }
   return memset(buf, 0, size);
 }
-
-/*
- * count_char counts the number of instances of c in str.
- */
-int   count_char(char* str, char c) {
-  int num_char;
-
-  /* Iterate through string until we've reached the end. */
-  num_char = 0;
-  while (str != NULL && *str != '\0') {
-    if (*str == c) {
-      num_char++;
-    }
-    str++;
-  }
-  return num_char;
-}
