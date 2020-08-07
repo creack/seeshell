@@ -11,6 +11,8 @@
 void  fork_exec(char* const buf) {
   /* Exec input. */
   int pid;
+  char* cmdArgs[] = {NULL, NULL};
+  char* const cmdEnv[] = {NULL};
 
   if ((pid = fork()) == -1) {
     perror("fork:");
@@ -18,8 +20,7 @@ void  fork_exec(char* const buf) {
   }
 
   if (pid == 0) {
-    char* const cmdArgs[] = {buf, NULL};
-    char* const cmdEnv[] = {NULL};
+    cmdArgs[0] = buf;
     if (execve(cmdArgs[0], cmdArgs, cmdEnv) == -1) {
       perror("execve:");
       exit(1);
@@ -43,7 +44,7 @@ void    read_loop(int fd) {
   while (1) {
     print_prompt();
 
-    // Read from STDIN.
+    /* Read from STDIN. */
     if (((n = read(fd, buf, 1024)) < 0)) {
       perror("read:");
       exit(1);
@@ -51,7 +52,7 @@ void    read_loop(int fd) {
     if (n == 0) {
       break;
     }
-    // Always strip the trialing char (expected to be \n).
+    /* Always strip the trialing char (expected to be \n). */
     buf[n - 1] = '\0';
 
     fork_exec(buf);
@@ -67,4 +68,6 @@ int       main() {
   while (list && *list) {
     printf("Element from the list: '%s'.\n", *list++);
   }
+
+  return (0);
 }

@@ -6,7 +6,7 @@ SRCS := main.c \
 # TODO: Add dependency to headers.
 OBJS := ${SRCS:.c=.o}
 
-CFLAGS  = -W -Wall -Werror -ansi -pedantic -std=c99
+CFLAGS  = -W -Wall -Werror -ansi -pedantic -std=c89
 LDFLAGS =
 LD      = gcc
 CC      = gcc
