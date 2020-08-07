@@ -34,3 +34,7 @@ getppid():5    getppid():?
 4. Terminal management
 5. Line processing
 
+## For next stream:
+
+1. `free()` unrecycled vars
+2. Cleanup use of `$PATH`

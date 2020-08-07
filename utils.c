@@ -7,7 +7,7 @@ void  xwrite(int fd, void* buf, int len) {
   int n;
 
   if ((n = write(fd, buf, len)) < 0) {
-    perror("write:");
+    perror("write");
     exit(1);
   }
 }
@@ -37,7 +37,7 @@ void*   xmalloc(int size) {
   void* buf;
 
   if ((buf = malloc(size)) == NULL) {
-    perror("malloc:");
+    perror("malloc");
     exit(1);
   }
   return memset(buf, 0, size);

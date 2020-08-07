@@ -1,8 +1,11 @@
+#define _DEFAULT_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <wait.h>
+#include <sys/stat.h>
 #include "seeshell.h"
 
 /*
@@ -14,7 +17,7 @@ void      fork_exec(char* const buf) {
   char*   cmdEnv[] = {NULL};
 
   if ((pid = fork()) == -1) {
-    perror("fork:");
+    perror("fork");
     exit(1);
   }
 
@@ -22,13 +25,13 @@ void      fork_exec(char* const buf) {
   cmdArgs = my_split(buf, ' ');
   if (pid == 0) {
     if (execve(cmdArgs[0], cmdArgs, cmdEnv) == -1) {
-      perror("execve:");
+      perror("execve");
       exit(1);
     }
   }
 
   if (wait(&pid) == -1) {
-    perror("wait:");
+    perror("wait");
     exit(1);
   }
 }
@@ -46,7 +49,7 @@ void    read_loop(int fd) {
 
     /* Read from STDIN. */
     if (((n = read(fd, buf, 1024)) < 0)) {
-      perror("read:");
+      perror("read");
       exit(1);
     }
     if (n == 0) {
@@ -59,31 +62,44 @@ void    read_loop(int fd) {
   }
 }
 
-int       main(int argc, const char* argv[], const char* env[]) {
-  int     i;
-  char**  path_dirs;
-  char*   dir;
+int           main(int argc, const char* argv[], const char* env[]) {
+  int         i;
+  char**      path_dirs;
+  char*       dir;
+  struct stat sb;
 
   if (argc == 0 || argv == NULL) return 0;
   i = 0;
   while (env != NULL && env[i] != NULL) {
     if (strncmp(env[i], "PATH=", 5) == 0) {
       path_dirs = my_split(env[i]+5, ':');
+
+      free(*path_dirs);
+      free(path_dirs);
+
       i = 0; /* We are going to break here, so we can reuse i safely. */
       while (path_dirs != NULL && path_dirs[i]) {
         /* Length of directory path + length of "/ls" + '\0'. */
         dir = xmalloc(sizeof(char) * (my_strlen(path_dirs[i]) + 3 + 1));
         strcat(dir, path_dirs[i]);
         strcat(dir, "/ls");
-        printf("%s\n", dir);
-        /* fork_exec(); */
+
+        if (lstat(dir, &sb) == 0) {
+          printf("execing: %s\n", dir);
+          fork_exec(dir);
+          free(dir);
+          break;
+        }
+        free(dir);
+
         i++;
       }
       break;
     }
     i++;
   }
-  /* read_loop(STDIN_FILENO); */
+
+  read_loop(STDIN_FILENO);
 
   return (0);
 }
