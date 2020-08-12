@@ -22,8 +22,8 @@ getppid():5    getppid():?
 1. Exec/fork (7-29)
 2. Read line (7-29)
 3. Split string (8-4)
-4. Use split string for parsing command line and isolate PATH
-5. Break out fork and introduce builtin (e.g. `exit`)
+4. Use split string for parsing command line and isolate PATH (8-6, 8-11)
+5. Break out fork and introduce builtin (e.g. `exit`, `cd`, `echo`, `pwd`, `export`)
 
 
 ## Other topics
