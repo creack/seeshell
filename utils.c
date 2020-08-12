@@ -19,7 +19,7 @@ int     my_strlen(char *str) {
 
   charCount = 0;
   /* Iterate through string until we've reached the end. */
-  while (str != NULL && *(str + charCount++) != '\0');
+  while (str != NULL && *(str + charCount) != '\0') charCount++;
 
   return charCount;
 }

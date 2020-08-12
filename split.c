@@ -1,5 +1,6 @@
 #define _DEFAULT_SOURCE
 #include <string.h>
+#include <stdlib.h>
 #include "seeshell.h"
 
 /*
@@ -11,6 +12,10 @@ char**    my_split(const char* in, char tok) {
   int     len;
   int     i;
   int     j;
+
+  if (in == NULL) {
+    return (NULL);
+  }
 
   /* First, we allocate and copy the given string so we have
      full control over it. */
@@ -42,6 +47,16 @@ char**    my_split(const char* in, char tok) {
     ret[j++] = str + i;
     while (i < len && str[i] != '\0') i++;
   }
-  ret[j - 1] = NULL;
-  return ret;
+  if (j > 1) {
+    ret[j - 1] = NULL;
+  }
+  return (ret);
+}
+
+void my_free_split(char** ptr) {
+  if (ptr == NULL) {
+    return;
+  }
+  free(*ptr);
+  free(ptr);
 }
