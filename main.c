@@ -114,7 +114,9 @@ void      read_loop(int fd, const char** env) {
     }
 
     /* Split line to get command and its arguments. */
-    cmd_args = my_split(buf, ' ');
+    if ((cmd_args = my_split(buf, ' ')) == NULL) {
+      continue;
+    }
     if (run_cmd(cmd_args[0], cmd_args, env) == -1) {
       fprintf(stderr, "seeshell: command not found: %s\n", cmd_args[0]);
     }
@@ -123,11 +125,7 @@ void      read_loop(int fd, const char** env) {
 }
 
 int main(__attribute__((unused)) int argc, __attribute__((unused)) const char* argv[], __attribute__((unused))  const char* env[]) {
-  const char* str = "ls";
-
-  printf("main: %p\n", str);
-  my_split(str, ' ');
-  /* read_loop(STDIN_FILENO, env); */
+  read_loop(STDIN_FILENO, env);
 
   return (0);
 }
