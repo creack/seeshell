@@ -118,13 +118,16 @@ void      read_loop(int fd, const char** env) {
     if (run_cmd(cmd_args[0], cmd_args, env) == -1) {
       fprintf(stderr, "seeshell: command not found: %s\n", cmd_args[0]);
     }
-    free(*cmd_args);
-    free(cmd_args);
+    my_free_split(cmd_args);
   }
 }
 
-int main(__attribute__((unused)) int argc, __attribute__((unused)) const char* argv[], const char* env[]) {
-  read_loop(STDIN_FILENO, env);
+int main(__attribute__((unused)) int argc, __attribute__((unused)) const char* argv[], __attribute__((unused))  const char* env[]) {
+  const char* str = "ls";
+
+  printf("main: %p\n", str);
+  my_split(str, ' ');
+  /* read_loop(STDIN_FILENO, env); */
 
   return (0);
 }

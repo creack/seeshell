@@ -25,7 +25,6 @@ getppid():5    getppid():?
 4. Use split string for parsing command line and isolate PATH (8-6, 8-11)
 5. Break out fork and introduce builtin (e.g. `exit`, `cd`, `echo`, `pwd`, `export`)
 
-
 ## Other topics
 
 1. More advanced parsing
@@ -36,5 +35,4 @@ getppid():5    getppid():?
 
 ## For next stream:
 
-1. `free()` unrecycled vars
-2. Cleanup use of `$PATH`
+1. Write builtins.
