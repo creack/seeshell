@@ -1,11 +1,13 @@
 #define _DEFAULT_SOURCE
 
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <wait.h>
-#include <sys/stat.h>
 #include "seeshell.h"
 
 
@@ -73,6 +75,16 @@ void      fork_exec(char* cmd, char** args, const char** env) {
   }
 
   if (pid == 0) {
+
+    int fd;
+
+    fd = open("out.txt", O_WRONLY|O_CREAT|O_TRUNC, 0644);
+
+    if (dup2(fd, 1) == -1) {
+      perror("dup2");
+      exit(1);
+    }
+
     if (execve(cmd, args, (char*const*)env) == -1) {
       perror("execve");
       exit(1);
@@ -80,6 +92,7 @@ void      fork_exec(char* cmd, char** args, const char** env) {
     return;
   }
 
+  /* wait until the child process is dead (exited). */
   if (wait(&pid) == -1) {
     perror("wait");
     exit(1);
