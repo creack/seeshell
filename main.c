@@ -67,33 +67,65 @@ int           run_cmd(char* cmd, char** args, const char** env) {
  * fork_exec forks the process and executes the given command in the child.
  */
 void      fork_exec(char* cmd, char** args, const char** env) {
-  int     pid;
+  int     pids[2];
+  int     pipefd[2];
+  char*   cargs[] = {NULL, NULL};
 
-  if ((pid = fork()) == -1) {
+  /* Populate the array. */
+  if (pipe(pipefd) == -1) {
+    perror("pipe");
+    exit(EXIT_FAILURE);
+  }
+
+  if ((pids[0] = fork()) == -1) {
     perror("fork");
     exit(1);
   }
 
-  if (pid == 0) {
+  if (pids[0] == 0) {
+    close(pipefd[1]);          /* Close unused write end */
 
-    int fd;
-
-    fd = open("out.txt", O_WRONLY|O_CREAT|O_TRUNC, 0644);
-
-    if (dup2(fd, 1) == -1) {
+    if (dup2(pipefd[0], 0) == -1) {
       perror("dup2");
       exit(1);
     }
 
-    if (execve(cmd, args, (char*const*)env) == -1) {
+    cargs[0] = "/usr/bin/wc"; /* (char*)argv[2]; */
+    if (execve(cargs[0], cargs, (char*const*)env) == -1) {
       perror("execve");
       exit(1);
     }
-    return;
+  } else {            /* Parent writes argv[1] to pipe */
+    close(pipefd[0]);          /* Close unused read end */
+
+    if ((pids[1] = fork()) == -1) {
+      perror("fork");
+      exit(1);
+    }
+
+    if (pids[1] == 0) {
+      if (dup2(pipefd[1], 1) == -1) {
+        perror("dup2");
+        exit(1);
+      }
+
+      if (execve(cmd, args, (char*const*)env) == -1) {
+        perror("execve");
+        exit(1);
+      }
+    } else {
+      close(pipefd[1]);          /* Reader will see EOF */
+
+      /* wait until the child process is dead (exited). */
+      if (wait(&pids[1]) == -1) {
+        perror("wait");
+        exit(1);
+      }
+    }
   }
 
   /* wait until the child process is dead (exited). */
-  if (wait(&pid) == -1) {
+  if (wait(&pids[0]) == -1) {
     perror("wait");
     exit(1);
   }
@@ -138,60 +170,7 @@ void      read_loop(int fd, const char** env) {
 }
 
 int main(__attribute__((unused)) int argc, __attribute__((unused)) const char* argv[], __attribute__((unused))  const char* env[]) {
-  int   pipefd[2];
-  pid_t cpid;
-  char* cargs[] = {NULL, NULL};
 
-  if (argc != 3) {
-    fprintf(stderr, "Usage: %s <string> <string>\n", argv[0]);
-    exit(EXIT_FAILURE);
-  }
-
-  /* Populate the array. */
-  if (pipe(pipefd) == -1) {
-    perror("pipe");
-    exit(EXIT_FAILURE);
-  }
-
-  cpid = fork();
-  if (cpid == -1) {
-    perror("fork");
-    exit(EXIT_FAILURE);
-  }
-
-  if (cpid == 0) {    /* Child reads from pipe */
-    close(pipefd[1]);          /* Close unused write end */
-
-    if (dup2(pipefd[0], 0) == -1) {
-      perror("dup2");
-      exit(1);
-    }
-
-    cargs[0] = (char*)argv[2];
-    if (execve(cargs[0], cargs, (char*const*)env) == -1) {
-      perror("execve");
-      exit(1);
-    }
-
-  } else {            /* Parent writes argv[1] to pipe */
-    close(pipefd[0]);          /* Close unused read end */
-
-    if (dup2(pipefd[1], 1) == -1) {
-      perror("dup2");
-      exit(1);
-    }
-
-    cargs[0] = (char*)argv[1];
-    if (execve(cargs[0], cargs, (char*const*)env) == -1) {
-      perror("execve");
-      exit(1);
-    }
-
-    close(pipefd[1]);          /* Reader will see EOF */
-    wait(NULL);                /* Wait for child */
-    exit(EXIT_SUCCESS);
-  }
-
-  /* read_loop(STDIN_FILENO, env); */
+  read_loop(STDIN_FILENO, env);
   return (0);
 }
